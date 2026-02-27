@@ -6,6 +6,3 @@
 <img src="resources/Screenshot 1.png" width= "700"></img>
 
 <img src="resources/Screenshot 2.png" width = "700"></img>
-
-
-
