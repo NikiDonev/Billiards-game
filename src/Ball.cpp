@@ -33,17 +33,6 @@ Ball::Ball(Vec2 vector, sf::Color color,float radius,int index)
 	srand(time(0));
 
 }
-//Ball::Ball(Vec2 vector,int index = -1)
-//	: x(vector.x), y(vector.y),index(index), radius(15.0f), mass(15.0f * 15.0f * 15.0f)
-//{
-//	ball.setRadius(radius);
-//	ball.setPointCount(100);
-//	ball.setPosition({ vector.x, vector.y });
-//	ball.setOrigin(radius, radius);
-//	ball.setFillColor(sf::Color::White);
-//	ball.setOutlineThickness(-2.0f);
-//	ball.setOutlineColor(sf::Color::Black);
-//}
 
 void Ball::Draw(sf::RenderWindow& window)
 {
@@ -71,15 +60,6 @@ void Ball::CollidingWithRect(const Vec2& edge1, const Vec2& size,float deltaTime
 		if (y - r < Ry + Rh && y + r > Ry)
 		{
 			velocity.y *= -1;
-			//if (y + r > Ry + Rh)
-			//{
-			//	y+=Ry + Rh - y + r;
-			//}
-			//else
-			//{
-			//	y += Ry - y - r;
-			//}
-			//ball.setPosition(x, y);
 		}
 	}
 	else if (y - r > Ry && y + r < Ry + Rh)
@@ -99,9 +79,6 @@ void Ball::CollidingWithRect(const Vec2& edge1, const Vec2& size,float deltaTime
 		velocity.x *= -0.9;
 		velocity.y *= -0.9;
 	}
-	//if(edge1)
-	/*return x - radius < edge2.x && x + radius>edge1.x && y - radius<edge2.y && y + radius>edge1.y;*/
-
 }
 
 void Ball::CollidingWithBall(Ball& other)
@@ -135,16 +112,16 @@ void Ball::CollidingWithBall(Ball& other)
 
 	}
 }
-int Ball::InPocket(const Table& table)
+bool Ball::InPocket(const Table& table)
 {
 	if (x + radius < table.start.x || x - radius>table.start.x + table.size.x ||
 		y + radius<table.start.y || y - radius>table.start.y + table.size.y)
 	{
-		pocketSound.setVolume(100);
-		pocketSound.play();
-		return index;
+		//pocketSound.setVolume(100);
+		//pocketSound.play();
+		return true;
 	}
-	return -1;
+	return false;
 }
 void Ball::MoveBall(float deltaTime)
 {
@@ -155,21 +132,8 @@ void Ball::MoveBall(float deltaTime)
 
 	velocity *= {0.9996699f, 0.9996699f};
 }
-void CueBall::InPocket(const Table& table)
-{
-	if (x+radius < table.start.x || x-radius>table.start.x + table.size.x ||
-		y+radius<table.start.y || y-radius>table.start.y + table.size.y)
-	{
-		velocity = { 0.0f,0.0f };
-		x = table.start.x + table.size.x / 4;
-		y = table.start.y + table.size.y / 2;
 
-		pocketSound.setVolume(3);
-		pocketSound.play();
-	}
-}
-
-void CueBall::AimingCueBall(sf::RenderWindow& window,Vec2& velocityVector)
+void Ball::AimingCueBall(sf::RenderWindow& window,Vec2& velocityVector)
 {
 	velocityVector = { 0.0f,0.0f };
 	bool mousePressed = false;

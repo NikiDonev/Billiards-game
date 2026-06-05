@@ -5,6 +5,8 @@
 #include "Vec2.h"
 #include "Ball.h"
 #include "Table.h"
+#include "vec.h"
+#include "wall.h"
 
 static const float view_height = 800.0f;
 
@@ -60,11 +62,14 @@ int main()
 	Vec2 tableSize(896.0f, 448.0f);
 	Table table(tableStart ,tableSize, 26.0f);
 
-
+	vec<float, 2> v = { 2, 0 }, v2 = {5,7 };
+	print(v);
+	rotateDeg(v, 45.0);
+	print(v);
+	
 	float r = 12.0f;
-	CueBall* cueBall = new CueBall({ table.start.x + table.size.x / 4,table.start.y + table.size.y / 2 }, sf::Color::White, r, -1);
-	int ballCount = 15; 
-	std::vector<Ball*> balls;
+	int ballCount = 16; 
+	std::vector<Ball> balls;
 	balls.reserve(ballCount);
 	unsigned int colors[15] = {0xFFFF00FF,0x0000FFFF,0xFF0000FF,0x800080FF,0xFFA500FF,0x01FD00FF,0x800000FF,0x000000FF
 		,0xFF0000FF,0xFF0000FF,0xFF0000FF,0xFF0000FF,0xFF0000FF,0xFF0000FF,0xFF0000FF };
@@ -87,12 +92,16 @@ int main()
 		,{r * sqrtf(3) * 4,0.0f}
 
 	};
-	for (int i = 0; i < ballCount; i++)
-	{
-		balls.emplace_back(new Ball({ tableStart.x+InitPos[i].x+650.0f ,tableStart.y + tableSize.y / 2 + InitPos[i].y}, sf::Color(colors[i]), r, i));
+	balls.emplace_back( Ball({ table.start.x + table.size.x / 4,
+							   table.start.y + table.size.y / 2 }, 
+							   sf::Color::White, r, -1));
+	for (int i = 0; i < ballCount-1; i++) {
+		balls.emplace_back(Ball({ tableStart.x+InitPos[i].x+650.0f ,
+								  tableStart.y + tableSize.y / 2 + InitPos[i].y}, 
+								  sf::Color(colors[i]), r, i));
 	}
+	wall w({ balls[0].x ,balls[0].y }, { balls[0].x ,balls[0].y+100.f });
 	
-
 
 
 	float deltaTime = 0.0f;
@@ -101,14 +110,12 @@ int main()
 	while (window.isOpen())
 	{
 		deltaTime = clock.restart().asSeconds();
-		if (deltaTime > 1.0f / 20.0f)
-		{
+		if (deltaTime > 1.0f / 20.0f) 
 			deltaTime = 1.0f / 20.0f;
-		}
+		
 
 		sf::Event evnt;
-		while (window.pollEvent(evnt))
-		{
+		while (window.pollEvent(evnt)) {
 
 			switch (evnt.type)
 			{
@@ -123,70 +130,47 @@ int main()
 
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
-		{
-			cueBall->velocity = { 0.0f,0.0f };
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
+			balls[0].velocity = {0.0f,0.0f};
 		}
 
 		view.setCenter(tableStart.x + tableSize.x / 2, tableStart.y + tableSize.y / 2);
 		window.clear(sf::Color::White);
 		window.setView(view);
-		//window.draw(box);
 
-		cueBall->AimingCueBall(window, velocityVector);
 		
 
 
-		//window.draw(table1);
 		table.Draw(window);
 
-		for (int i = 0; i < ballCount;)
-		{
-			balls[i]->Draw(window);
-			balls[i]->MoveBall(deltaTime);
-			balls[i]->CollidingWithTable(table,deltaTime);
-			int ind = balls[i]->InPocket(table);
-			if (ind != -1)
-			{	
-				delete balls[i];
-				balls.erase(balls.begin() + i);
-				ballCount--;
-				for (int j = 0; j < ballCount; j++)
-				{
-					balls[j]->index = j;
+		for (int i = 0; i < ballCount;++i) {
+			balls[i].Draw(window);
+			balls[i].MoveBall(deltaTime);
+			balls[i].CollidingWithTable(table,deltaTime);
+
+			if (balls[i].InPocket(table)) {
+				if (i == 0) {
+					balls[0].x = table.start.x + table.size.x / 4;
+					balls[0].y = table.start.y + table.size.y / 2;
+					balls[0].velocity = { 0, 0 };
+				}
+				else {
+					balls[i].x = 10000;
 				}
 			}
-			else
-			{
-				i++;
+		}
+
+		balls[0].AimingCueBall(window, velocityVector);
+		DrawVector({ balls[0].x,balls[0].y}, velocityVector, window);
+		balls[0].Draw(window);
+		for (int i = 0; i < ballCount-1; i++) {
+			for (int j = i + 1; j < ballCount; j++) {
+				balls[i].CollidingWithBall(balls[j]);
 			}
-
 		}
-		DrawVector({ cueBall->x,cueBall->y }, velocityVector, window);
-		cueBall->MoveBall(deltaTime);
-		cueBall->CollidingWithTable(table,deltaTime);
-		cueBall->InPocket(table);
-		cueBall->Draw(window);
-
-		for (int i = 0; i < ballCount; i++)
-		{
-			cueBall->CollidingWithBall(*balls[i]);
-		}
-		for (int i = 0; i < ballCount-1; i++)
-		{
-			for (int j = i + 1; j < ballCount; j++)
-			{
-				balls[i]->CollidingWithBall(*balls[j]);
-			}
-
-		}
-
+		w.collide(balls[0]);
+		w.Draw(window);
 
 		window.display();
-	}
-	delete cueBall;
-	for (int i = 0; i < ballCount; i++)
-	{
-	delete balls[i];
 	}
 }

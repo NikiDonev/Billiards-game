@@ -7,24 +7,24 @@ class Vec2
 
 public:
 
-	float x, y;
+	float x{}, y{};
 
+	Vec2::Vec2(float x, float y) : x(x), y(y){}
+	Vec2::Vec2(sf::Vector2f vector) : x(vector.x), y(vector.y){}
+	Vec2::Vec2() :x(0.0f), y(0.0f){}
 
-	Vec2(float x, float y);
+	sf::Vector2f Vec2::toSFVector() const{
+		return sf::Vector2f(x, y);
+	}
 
-	Vec2(sf::Vector2f vector);
+	Vec2 Vec2::normalize(){
+		return length() != 0 ? (*this) / length() : Vec2(0, 0);
+	}
+	float Vec2::length(){
+		return std::sqrt(x * x + y * y);
+	}
 
-	Vec2();
-    sf::Vector2f toSFVector() const;
-    //sf::Vector2f start = vec1.toSFVector();
-	
-	//sf::Vector2f toSFVector();
-
-	Vec2 normalize();
-
-	float length();
-
-	~Vec2();
+	Vec2::~Vec2(){}
 
 
 #pragma region operator overloading

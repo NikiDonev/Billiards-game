@@ -26,9 +26,11 @@ public:
 
 	void CollidingWithBall(Ball& other);
 
-	int InPocket(const Table& table);
+	bool InPocket(const Table& table);
 
 	void MoveBall(float deltaTime);
+	void AimingCueBall(sf::RenderWindow& window,Vec2& velocityVector);
+	//void InPocket(const Table& table);
 
 	Vec2 velocity;
 	sf::CircleShape ball;
@@ -41,18 +43,7 @@ public:
 	sf::Sound pocketSound;
 private:	
 	sf::Color color;
+	bool startAiming = false;
 	
 };
 
-class CueBall : public Ball
-{
-public:
-	using Ball::Ball;
-
-	void AimingCueBall(sf::RenderWindow& window,Vec2& velocityVector);
-	void InPocket(const Table& table);
-private:
-	bool startAiming = false;
-
-
-};
