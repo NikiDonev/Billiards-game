@@ -1,97 +1,98 @@
 #pragma once
+/*
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
-class Vec2
+class vec2f
 {
 
 public:
 
 	float x{}, y{};
 
-	Vec2::Vec2(float x, float y) : x(x), y(y){}
-	Vec2::Vec2(sf::Vector2f vector) : x(vector.x), y(vector.y){}
-	Vec2::Vec2() :x(0.0f), y(0.0f){}
+	vec2f::vec2f(float x, float y) : x(x), y(y){}
+	vec2f::vec2f(sf::Vector2f vector) : x(vector.x), y(vector.y){}
+	vec2f::vec2f() :x(0.0f), y(0.0f){}
 
-	sf::Vector2f Vec2::toSFVector() const{
+	sf::Vector2f vec2f::toSFVector() const{
 		return sf::Vector2f(x, y);
 	}
 
-	Vec2 Vec2::normalize(){
-		return length() != 0 ? (*this) / length() : Vec2(0, 0);
+	vec2f vec2f::normalize(){
+		return length() != 0 ? (*this) / length() : vec2f(0, 0);
 	}
-	float Vec2::length(){
+	float vec2f::length(){
 		return std::sqrt(x * x + y * y);
 	}
 
-	Vec2::~Vec2(){}
+	vec2f::~vec2f(){}
 
 
 #pragma region operator overloading
 
-	Vec2 operator+(const Vec2& other) const
+	vec2f operator+(const vec2f& other) const
 	{
-		return Vec2(x + other.x, y + other.y);
+		return vec2f(x + other.x, y + other.y);
 	}
-	Vec2& operator+=(const Vec2& other)
+	vec2f& operator+=(const vec2f& other)
 	{
 		x += other.x;
 		y += other.y;
 		return *this;
 	}
-	Vec2 operator-(const Vec2& other) const
+	vec2f operator-(const vec2f& other) const
 	{
-		return Vec2(x - other.x, y - other.y);
+		return vec2f(x - other.x, y - other.y);
 	}
-	Vec2& operator-=(float minus)
+	vec2f& operator-=(float minus)
 	{
 		x -= minus;
 		y -= minus;
 		return *this;
 	}
-	Vec2& operator-=(const Vec2& other)
+	vec2f& operator-=(const vec2f& other)
 	{
 		x -= other.x;
 		y -= other.y;
 		return *this;
 	}
-	float operator*(const Vec2& other) const
+	float operator*(const vec2f& other) const
 	{
 		return x * other.x + y * other.y;
 	}
-	Vec2 operator*(float multiply) const
+	vec2f operator*(float multiply) const
 	{
-		return Vec2(x * multiply, y * multiply);
+		return vec2f(x * multiply, y * multiply);
 	}
-	Vec2& operator*=(const Vec2& other)
+	vec2f& operator*=(const vec2f& other)
 	{
 		x *= other.x;
 		y *= other.y;
 		return *this;
 	}
-	Vec2& operator*=(float multiply)
+	vec2f& operator*=(float multiply)
 	{
 		x *= multiply;
 		y *= multiply;
 		return *this;
 	}
-	Vec2 operator/(float divide) const
+	vec2f operator/(float divide) const
 	{
-		return Vec2(x / divide, y / divide);
+		return vec2f(x / divide, y / divide);
 	}
-    Vec2& operator/=(float divide)  
+    vec2f& operator/=(float divide)  
     {  
 		x /= divide;  
         y /= divide;  
 		return *this;
     }
-	Vec2& operator/=(const Vec2& other)
+	vec2f& operator/=(const vec2f& other)
 	{
 		x /= other.x;
 		y /= other.y;
 		return *this;
 	}
-	bool operator==(const Vec2& other)
+	bool operator==(const vec2f& other)
 	{
 		return x == other.x && y == other.y;
 	}
@@ -101,4 +102,5 @@ public:
 
 };
 
-std::ostream& operator<<(std::ostream& stream, const Vec2& vector);
+std::ostream& operator<<(std::ostream& stream, const vec2f& vector);
+*/

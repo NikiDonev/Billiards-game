@@ -1,49 +1,45 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include "Vec2.h"
-#include "Table.h"
+//#include "Table.h"
+#include "vec.h"
 
-//float distance(sf::Vector2f vec1, sf::Vector2f vec2);
+class Table;
 
 class Ball
 {
 public:
 	float radius;                     
-	float x, y;
 	int index;
+	vec2f pos;
 	
+	vec2f vel;
+	sf::CircleShape ball;
+	float mass;
+	bool startAiming = false;
 
-	Ball(Vec2 vector,sf::Color color,float radius,int index);
-
-	//Ball(Vec2 vector,int index);
+	Ball(vec2f vector,sf::Color color,float radius,int index);
 
 	void Draw(sf::RenderWindow& window);
 
 	void CollidingWithTable(const Table& table, float deltaTime);
 
-	void CollidingWithRect(const Vec2& edge1, const Vec2& size, float deltaTime);
+	void CollidingWithTable(const Table& table);
 
 	void CollidingWithBall(Ball& other);
 
 	bool InPocket(const Table& table);
 
 	void MoveBall(float deltaTime);
-	void AimingCueBall(sf::RenderWindow& window,Vec2& velocityVector);
-	//void InPocket(const Table& table);
-
-	Vec2 velocity;
-	sf::CircleShape ball;
-	float mass;
+	void AimingCueBall(sf::RenderWindow& window,vec2f& velocityVector);
 
 	static sf::SoundBuffer collisionBuffer;
 	sf::Sound collisionSound;
 
 	static sf::SoundBuffer pocketBuffer;
 	sf::Sound pocketSound;
-private:	
 	sf::Color color;
-	bool startAiming = false;
+private:	
 	
 };
 

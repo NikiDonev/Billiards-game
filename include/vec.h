@@ -5,12 +5,16 @@
 #include <math.h>
 #include <initializer_list>
 
+#if __has_include(<SFML/System/Vector2.hpp>) && __has_include(<SFML/System/Vector3.hpp>)
+#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vector3.hpp>
+#endif
+
 #pragma region constructors and indexing
 
 template <typename T, size_t N>
 struct vec {
 	T data[N]{};
-	
 	vec<T, N>() {};
 	vec<T, N>(const std::initializer_list<T>& list) {
 		size_t i = 0;
@@ -32,6 +36,12 @@ struct vec<T, 2> {
 	T& operator[](size_t i) { return (i == 0) ? x : y; }
 	const T& operator[](size_t i) const { return (i == 0) ? x : y; }
 
+#ifdef SFML_VECTOR2_HPP
+	vec<T, 2>(const sf::Vector2<T>& vec) : x(vec.x), y(vec.y) {}
+	operator sf::Vector2<T>() const {
+		return sf::Vector2<T>(x, y);
+	}
+#endif
 };
 
 template <typename T>
@@ -50,6 +60,13 @@ struct vec<T, 3> {
 		if (i == 1) return y;
 		return z;
 	}
+
+#ifdef SFML_VECTOR3_HPP
+	vec<T, 3>(const sf:: Vector3<T>& vec) : x(vec.x), y(vec.y), z(vec.z) {}
+	operator sf::Vector3<T>() const {
+		return sf::Vector3<T>(x, y, z);
+	}
+#endif
 };
 #pragma endregion
 
@@ -172,6 +189,7 @@ double length(const vec<T, N>& v) {
 	for (size_t i = 0; i < N; ++i) len += v[i] * v[i];
 	return std::sqrt(len);
 }
+
 template <typename T, size_t N>
 double length_sq(const vec<T, N>& v) {
 	double len{};
@@ -190,6 +208,7 @@ vec<T, N> normalized(const vec<T, N>& v) {
 	if (len == 0) return v;
 	return v * (static_cast<T>(1) / len);
 }
+
 template <typename T, size_t N>
 vec<T, N>normalize(vec<T, N>& v) {
 	return v = normalized(v);
@@ -227,8 +246,8 @@ vec<T, N> lerp(const vec<T, N>& start, const vec<T, N>& end, U t) {
 }
 
 template <typename T, size_t N>
-vec<T, N> reflect(const vec<T, N>& incident, const vec<T, N>& normal) {
-	return incident - 2 * (incident | normal) * normal;
+vec<T, N> reflect(const vec<T, N>& incident, const vec<T, N>& normal, float elasticity = 1.f) {
+	return incident - (1 + elasticity) * (incident | normal) * normal;
 }
 
 #pragma endregion
@@ -250,7 +269,6 @@ void print(const vec<T, N>& v) {
 	std::cout << v << std::endl;
 }
 
-
 template <typename T, size_t N>
 bool operator== (const vec<T, N>& left, const vec<T, N>& right) {
 	T epsilon = static_cast<T>(0.00001);
@@ -258,16 +276,25 @@ bool operator== (const vec<T, N>& left, const vec<T, N>& right) {
 		if (std::abs(left[i] - right[i]) > epsilon) return false;
 	return true;
 }
+
 template <typename T, size_t N>
 bool operator!= (const vec<T, N>& left, const vec<T, N>& right) {
 	return !(left == right);
 }
 #pragma endregion
 
+template <typename T>
+using vec2 = vec<T, 2>;
+
+template <typename T>
+using vec3 = vec<T, 3>;
+
 using vec2f = vec<float, 2>;
 using vec2i = vec<int, 2>;
 using vec2d = vec<double, 2>;
+using vec2u = vec<unsigned int, 2>;
 
 using vec3f = vec<float, 3>;
 using vec3i = vec<int, 3>;
 using vec3d = vec<double, 3>;
+using vec3u = vec<unsigned int, 3>;
