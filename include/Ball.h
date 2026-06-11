@@ -4,25 +4,28 @@
 //#include "Table.h"
 #include "vec.h"
 
+static constexpr float cm = 0.01f;
+static constexpr float mm = 0.001f;
+static constexpr float m = 1.f;
+
 class Table;
 
 class Ball
 {
 public:
 	float radius;                     
-	int index;
 	vec2f pos;
 	
 	vec2f vel;
 	sf::CircleShape ball;
 	float mass;
 	bool startAiming = false;
+	bool inPlay = true;
+	int type = -1;
 
-	Ball(vec2f vector,sf::Color color,float radius,int index);
+	Ball(vec2f vector,sf::Color color,float radius, int ind);
 
 	void Draw(sf::RenderWindow& window);
-
-	void CollidingWithTable(const Table& table, float deltaTime);
 
 	void CollidingWithTable(const Table& table);
 
@@ -31,6 +34,7 @@ public:
 	bool InPocket(const Table& table);
 
 	void MoveBall(float deltaTime);
+
 	void AimingCueBall(sf::RenderWindow& window,vec2f& velocityVector);
 
 	static sf::SoundBuffer collisionBuffer;

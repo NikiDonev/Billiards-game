@@ -146,6 +146,17 @@ vec<T, N> operator/ (T scalar, const vec<T, N>& v) {
 	res *= (1 / scalar);
 	return res;
 }
+template <typename T, size_t N>
+vec<T, N>& operator/=(vec<T, N>& left, const vec<T, N>& right) {
+	for (size_t i = 0; i < N; ++i) left[i] /= right[i];
+	return left;
+}
+template <typename T, size_t N>
+vec<T, N> operator/(const vec<T, N>& left, const vec<T, N>& right) {
+	vec<T, N> res = left;
+	res /= right;
+	return res;
+}
 #pragma endregion
 
 #pragma region vector math
@@ -248,6 +259,12 @@ vec<T, N> lerp(const vec<T, N>& start, const vec<T, N>& end, U t) {
 template <typename T, size_t N>
 vec<T, N> reflect(const vec<T, N>& incident, const vec<T, N>& normal, float elasticity = 1.f) {
 	return incident - (1 + elasticity) * (incident | normal) * normal;
+}
+
+template <typename T, size_t N>
+vec<T, N> scale(vec<T, N>& v, T scale) {
+	v *= static_cast<T>(scale / !v);
+	return v;
 }
 
 #pragma endregion

@@ -8,46 +8,51 @@
 #include "vec.h"
 
 static const float view_height = 800.0f;
+const float minWidth = 290 * cm;
 
 void ResizeView(sf::RenderWindow& window, sf::View& view)
 {
-	float aspectRatio = float(window.getSize().x) / float(window.getSize().y);
-	view.setSize(view_height * aspectRatio, view_height);
+	view.setSize({ minWidth, (float)window.getSize().y / (float)window.getSize().x * minWidth });
+	window.setView(view);
 }
 
-float distance(sf::Vector2f vec1, sf::Vector2f vec2f)
-{
-	return sqrt((vec2f.x - vec1.x) * (vec2f.x - vec1.x) + (vec2f.y - vec1.y) * (vec2f.y - vec1.y));
-}
 
 vec2f velocityVector;
+float r = 2.85 * cm;
 
 
-
-void DrawVector(const vec2f& vec1, const vec2f& vec2f, sf::RenderWindow& window)  
+void DrawVector( vec2f start, vec2f vel, sf::RenderWindow& window)  
 {  
-	float width = 2.0f;
-	float pi = 2 * acos(0.0);
-	sf::Vector2f start = { vec1.x ,vec1.y};
-    sf::Vector2f end = vec1 + vec2f;
+	float width = 0.7*cm;
+    vec2f end = start + vel;
 
-    sf::Vector2f direction = end - start;  
-	float length = sqrt(direction.x * direction.x + direction.y * direction.y)*2;
-	//if (length > 150.0f)
-	//{
-	//	length = 150.0f;
-	//}
-	length += 10.0f;
+    vec2f direction = end - start;  
+	float length = !direction * 2.f;
+	length += r;
+	scale(direction, length);
 
-    sf::RectangleShape line(sf::Vector2f(length, width));
+
+	sf::RectangleShape line({ length, width });
 	line.setOrigin(0, width / 2);
 	line.setPosition(start.x, start.y);
-    line.setRotation(atan2(direction.y, direction.x) * 180.0f / pi);
+    line.setRotation(angleDeg(direction));
     line.setFillColor(sf::Color::White);  
-	line.setOutlineThickness(2.0f);
+	line.setOutlineThickness(4*mm);
 	line.setOutlineColor(sf::Color::Black);
 
-    window.draw(line);  
+	float arrW = 1.2*cm, arrH = 2.1 * cm;
+	sf::ConvexShape arrow;
+	arrow.setPointCount(3);
+	arrow.setPoint(0, { -arrW, 0.f });
+	arrow.setPoint(1, { arrW, 0.f });
+	arrow.setPoint(2, { 0.f, -arrH - 8*mm });
+	arrow.setOutlineColor(sf::Color::Black);
+	arrow.setOutlineThickness(5 * mm);
+	arrow.setPosition(start + direction);
+	arrow.setRotation(angleDeg(direction) + 90);
+
+    window.draw(line); 
+	window.draw(arrow);
 }
 
 
@@ -56,19 +61,32 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(view_height*2, view_height), "Billiards game", sf::Style::Close | sf::Style::Titlebar 
 		| sf::Style::Resize);
 	sf::View view(sf::Vector2f(view_height, view_height/2), sf::Vector2f(2 * view_height, view_height));
-
-	vec2f tableStart(60.0f, 60.0f);
-	vec2f tableSize(896.0f, 448.0f);
-	Table table(tableStart ,tableSize, 26.0f);
+	view.setCenter(0, 0);
+	view.zoom(1.f/480.f);
+	window.setView(view);
+	vec2f tableSize(198*cm, 99*cm);
+	Table table(tableSize/-2.f ,tableSize, 6.5*cm);
 
 	
-	float r = 12.0f;
-	int ballCount = 16; 
 	std::vector<Ball> balls;
-	balls.reserve(ballCount);
-	unsigned int colors[15] = {0xFFFF00FF,0x0000FFFF,0xFF0000FF,0x800080FF,0xFFA500FF,0x01FD00FF,0x800000FF,0x000000FF
-		,0xFF0000FF,0xFF0000FF,0xFF0000FF,0xFF0000FF,0xFF0000FF,0xFF0000FF,0xFF0000FF };
-	float sqr3 = sqrtf(3);
+	balls.reserve(16);
+	unsigned int colors[15] = {
+	0xFFD000FF, // 1  - Canary Yellow
+	0x007BFFFF, // 2  - Vibrant Blue
+	0xFF3B30FF, // 3  - Crimson Red
+	0x8E44ADFF, // 4  - Deep Violet
+	0xFF9500FF, // 5  - Neon Orange
+	0x2ECC71FF, // 6  - Bright Mint Green
+	0xA62B2BFF, // 7  - Burgundy / Maroon
+	0x1C1C1EFF, // 8  - True Black
+	0xFFD000FF, // 9  - Yellow (Stripe base)
+	0x007BFFFF, // 10 - Blue (Stripe base)
+	0xFF3B30FF, // 11 - Red (Stripe base)
+	0x8E44ADFF, // 12 - Purple (Stripe base)
+	0xFF9500FF, // 13 - Orange (Stripe base)
+	0x2ECC71FF, // 14 - Green (Stripe base)
+	0xA62B2BFF  // 15 - Maroon (Stripe base)
+	};
 	vec2f InitPos[15] = { 
 		{0.0f,0.0f}
 		,{r * sqrtf(3),r}
@@ -88,19 +106,15 @@ int main()
 
 	};
 
-	balls.emplace_back( Ball({ table.start.x + table.size.x / 4,
-							   table.start.y + table.size.y / 2 }, 
-							   sf::Color::White, r, -1));
-	for (int i = 0; i < ballCount-1; i++) {
-		balls.emplace_back(Ball({ tableStart.x+InitPos[i].x+650.0f ,
-								  tableStart.y + tableSize.y / 2 + InitPos[i].y}, 
-								  sf::Color(colors[i]), r, i));
+	balls.emplace_back( Ball({ table.bw/-4.f, 0 }, sf::Color::White, r, -1));
+	for (int i = 0; i < 15; i++) {
+		balls.emplace_back(Ball({ table.bw/ 4.f + InitPos[i].x ,InitPos[i].y}, sf::Color(colors[i]), r,i));
 	}
 	
 
 	float deltaTime = 0.0f;
 	sf::Clock clock;
-
+	int bgColor = 2;
 	while (window.isOpen())
 	{
 		deltaTime = clock.restart().asSeconds();
@@ -126,30 +140,62 @@ int main()
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
 			balls[0].vel = {0.0f,0.0f};
+			vec2f v = view.getSize();
+			v /= 2.f;
 		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num0))
+			table.colors = 0;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1))
+			table.colors = 1;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num2))
+			table.colors = 2;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num3))
+			table.colors = 3;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num4))
+			table.colors = 4;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num5))
+			table.colors = 5;
 
-		view.setCenter(tableStart.x + tableSize.x / 2, tableStart.y + tableSize.y / 2);
-		window.clear(sf::Color::White);
-		window.setView(view);
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
+			balls[0].vel = { 0, 0 };
+			balls[0].pos = { table.bw / -4.f, 0 };
+			balls[0].inPlay = true;
+			for (int i = 1; i < balls.size(); ++i) {
+				balls[i].vel = { 0, 0 };
+				balls[i].pos = { table.bw / 4.f + InitPos[i-1].x ,InitPos[i-1].y };
+				balls[i].inPlay = true;
+			}
+		}
+		
+		if (evnt.type == sf::Event::KeyReleased) {
+			table.setColors();
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::B))
+			bgColor = (bgColor + 1) % 3;
+
+
+		unsigned int bgColors[3] = { 0x1F1610FF , 0x121315FF , 0x0B0F19FF };
+		window.clear(sf::Color(bgColors[bgColor]));
 
 		
 
 
 		table.Draw(window);
 
-		for (int i = 0; i < ballCount;++i) {
+		for (int i = 0; i < balls.size();++i) {
+			if (!balls[i].inPlay) continue;
 			balls[i].Draw(window);
 			balls[i].MoveBall(deltaTime);
 			balls[i].CollidingWithTable(table);
 
 			if (balls[i].InPocket(table)) {
 				if (i == 0) {
-					balls[0].pos.x = table.start.x + table.size.x / 4;
-					balls[0].pos.y = table.start.y + table.size.y / 2;
+					balls[0].pos = { table.bw/-4.f, 0 };
 					balls[0].vel = { 0, 0 };
 				}
 				else {
 					balls[i].pos.x = 10000;
+					balls[i].inPlay = false;
 				}
 			}
 		}
@@ -157,8 +203,10 @@ int main()
 		balls[0].AimingCueBall(window, velocityVector);
 		DrawVector({ balls[0].pos.x,balls[0].pos.y}, velocityVector, window);
 		balls[0].Draw(window);
-		for (int i = 0; i < ballCount-1; i++) {
-			for (int j = i + 1; j < ballCount; j++) {
+		for (int i = 0; i < balls.size() - 1; i++) {
+			if (!balls[i].inPlay) continue;
+			for (int j = i + 1; j < balls.size(); j++) {
+				if (!balls[j].inPlay) continue;
 				balls[i].CollidingWithBall(balls[j]);
 			}
 		}
