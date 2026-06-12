@@ -6,8 +6,8 @@
 
 struct wall {
 	vec2f start, end, n, normal;
-	sf::RectangleShape rect;
-	sf::CircleShape c1, c2;
+	//sf::RectangleShape rect;
+	//sf::CircleShape c1, c2;
 	float width{0}, len{0};
 	bool init = false;
 	wall() {}
@@ -25,17 +25,17 @@ struct wall {
 		len = !w;
 		normal = normalized(rotateDeg(end - start, 90));
 
-		rect.setPosition(start + normal * (width / 2));
-		rect.setSize({ width, len });
-		rect.setRotation(angleDeg(w) - 90);
-		rect.setFillColor(sf::Color::Magenta);
-		c1.setOrigin(width / 2, width / 2);
-		c2.setOrigin(width / 2, width / 2);
-		c1.setPosition(start);
-		c2.setPosition(end);
-		c1.setRadius(width / 2);
-		c2.setRadius(width / 2);
-		rect.setFillColor(sf::Color::Red);
+		//rect.setPosition(start + normal * (width / 2));
+		//rect.setSize({ width, len });
+		//rect.setRotation(angleDeg(w) - 90);
+		//rect.setFillColor(sf::Color::Magenta);
+		//c1.setOrigin(width / 2, width / 2);
+		//c2.setOrigin(width / 2, width / 2);
+		//c1.setPosition(start);
+		//c2.setPosition(end);
+		//c1.setRadius(width / 2);
+		//c2.setRadius(width / 2);
+		//rect.setFillColor(sf::Color::Red);
 	}
 	void collide(Ball& ball, float elasticity = 1.f) {
 		if (!init) return;

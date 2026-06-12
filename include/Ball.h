@@ -7,6 +7,7 @@
 static constexpr float cm = 0.01f;
 static constexpr float mm = 0.001f;
 static constexpr float m = 1.f;
+inline bool holdI = 0;
 
 class Table;
 
@@ -20,8 +21,8 @@ public:
 	sf::CircleShape ball;
 	float mass;
 	bool startAiming = false;
-	bool inPlay = true;
-	int type = -1;
+	bool inPlay = true, holdingBall = false;
+	int type = -1, ind = 0;
 
 	Ball(vec2f vector,sf::Color color,float radius, int ind);
 
@@ -37,12 +38,13 @@ public:
 
 	void AimingCueBall(sf::RenderWindow& window,vec2f& velocityVector);
 
+	void HoldingBall(sf::RenderWindow& window);
+
 	static sf::SoundBuffer collisionBuffer;
 	sf::Sound collisionSound;
 
 	static sf::SoundBuffer pocketBuffer;
 	sf::Sound pocketSound;
-	sf::Color color;
 private:	
 	
 };

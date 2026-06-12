@@ -8,8 +8,8 @@
 sf::SoundBuffer Ball::collisionBuffer;
 sf::SoundBuffer Ball::pocketBuffer;
 
-Ball::Ball(vec2f vector, sf::Color color,float radius, int ind)  
-	: pos(vector), color(color), radius(radius), mass(radius* radius* radius)
+Ball::Ball(vec2f vector, sf::Color color, float radius, int ind)
+	: pos(vector), radius(radius), mass(radius* radius* radius), ind(ind)
 {  
 	if (ind == 0 || ind == 8) type = -1;
 	else type = ind % 2;
@@ -71,7 +71,7 @@ void Ball::CollidingWithBall(Ball& other)
 		vel = v1 - n * (p * m1);
 		other.vel = v2 + n * (p * m2);
 
-		collisionSound.setVolume(dist((v1 + v2), {0.0f,0.0f})/8);
+		collisionSound.setVolume(length(vel + other.vel)*50);
 
 		collisionSound.setPitch(0.7+(((double)rand()) / RAND_MAX)/2);
 		collisionSound.play();
@@ -84,7 +84,8 @@ bool Ball::InPocket(const Table& table)
 		pos.y + radius<table.bh/ -2.f || pos.y - radius>table.bh/2.f)
 	{
 		if (inPlay) {
-			pocketSound.setVolume(70);
+			pocketSound.setVolume(15);
+			pocketSound.setPitch(0.4 + !vel/2.f);
 			pocketSound.play();
 		}
 		return true;
@@ -106,14 +107,10 @@ void Ball::MoveBall(float deltaTime)
 void Ball::AimingCueBall(sf::RenderWindow& window,vec2f& velocityVector)
 {
 	velocityVector = { 0.0f,0.0f };
-	bool mousePressed = false;
-	sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-		mousePressed = true;
-	else
-		mousePressed = false;
+	vec2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+	bool mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
-	if (dist(vec2f(mousePos),  pos) <= 20*cm && mousePressed)
+	if (dist(mousePos,  pos) <= 20*cm && mousePressed)
 	{
 		startAiming = true;
 	}
@@ -129,6 +126,24 @@ void Ball::AimingCueBall(sf::RenderWindow& window,vec2f& velocityVector)
 			vel = normalize(vel) * 8.0f;
 		}
 		startAiming = false;
+	}
+}
+
+void Ball::HoldingBall(sf::RenderWindow& window) {
+	vec2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+	bool mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
+	float distance = dist(mousePos, pos);
+	if (!mousePressed) {
+		holdingBall = false;
+		holdI = 0;
+	}
+	else if (distance < radius && holdI == 0) {
+		holdingBall = true;
+		holdI = 1;
+	}
+	if (holdingBall) {
+		vel = { 0.f, 0.f };
+		pos = mousePos;
 	}
 }
 
